@@ -1,0 +1,29 @@
+---
+title: Python and R Studio!
+author: 'Tiffany Tran'
+date: '2021-05-05'
+slug: new
+categories: []
+tags: []
+description: ''
+---
+
+![](/post/2021-05-09-blog-post-python_files/Python_vs._R_for_Data_Science__What_s_the_Difference__klxnwh.png)
+
+The ongoing debate about R versus Python is mostly a statistics versus CS/ML debate. Some argue that R syntax is a bit clunkier, while Python syntax is slightly sleeker. Or that R runs slower and Python runs faster. Although this may be true, the Reticulate package allows R and Python to interact together!
+
+Firstly, the Reticulate package must be loaded in R. Next, assign a name to an object.
+```{R}
+library(reticulate)
+
+versus <- "Python loves"
+```
+
+Next, the same thing must be done, however this time in a Python code chunk. The print function could be used to obtain the objects from the R code chunk.
+```{python}
+versus = "R Studio!"
+print(r.versus, versus)
+```
+Check out other cool things that could be done with R!
+[Link to project 1](/project/project1/)
+

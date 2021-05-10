@@ -5,7 +5,18 @@
     <link>/</link>
     <description>Recent content on Tiffany Tran</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-US</language><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-US</language>
+    <lastBuildDate>Wed, 05 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Python and R Studio!</title>
+      <link>/post/2021/05/05/new/</link>
+      <pubDate>Wed, 05 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2021/05/05/new/</guid>
+      <description>The ongoing debate about R versus Python is mostly a statistics versus CS/ML debate. Some argue that R syntax is a bit clunkier, while Python syntax is slightly sleeker. Or that R runs slower and Python runs faster. Although this may be true, the Reticulate package allows R and Python to interact together!
+Firstly, the Reticulate package must be loaded in R. Next, assign a name to an object.</description>
+    </item>
+    
     <item>
       <title>Project 1: Exploratory Data Analysis</title>
       <link>/project/project1/</link>
@@ -35,15 +46,6 @@
  Wrangling &amp;amp; Exploratory Data Analysis
  Modeling, Inference, Prediction
   -- </description>
-    </item>
-    
-    <item>
-      <title>Resume</title>
-      <link>/resume/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/resume/</guid>
-      <description>    </description>
     </item>
     
   </channel>
