@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Tiffany Tran" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 2: Modeling, Testing, and Predicting</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">Project 2: Modeling, Testing, and Predicting</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="modeling" class="section level1">
+<h1>Modeling</h1>
+<p>####Introduction</p>
+<ul>
+<li><strong>0. (5 pts)</strong> Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?</li>
+</ul>
+<pre class="r"><code>diabetes &lt;- read.csv(&quot;~/diabetes.csv&quot;)
+diabetes &lt;- diabetes %&gt;% select(Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, Age, Outcome)
+
+
+head(diabetes)</code></pre>
+<pre><code>## Pregnancies Glucose BloodPressure SkinThickness Insulin
+BMI Age Outcome
+## 1 6 148 72 35 0 33.6 50 1
+## 2 1 85 66 29 0 26.6 31 0
+## 3 8 183 64 0 0 23.3 32 1
+## 4 1 89 66 23 94 28.1 21 0
+## 5 0 137 40 35 168 43.1 33 1
+## 6 5 116 74 0 0 25.6 30 0</code></pre>
+<p>The dataset <code>diabetes</code> was acquired from <a href="https://www.kaggle.com/datasets" class="uri">https://www.kaggle.com/datasets</a>. The dataset was obtained from the National Institute of Diabetes and Digestive and Kidney Diseases, which was used to predict whether a patient has diabetes based on diagnostic measurements. The patients are all females from Pima Indian heritage who are at least 21 years old. Variables in the dataset includes number of times pregnant, glucose concentration, diastolic blood pressure (mmHg), tricep skin thickness (mm), insulin levels (muIU/mL), BMI (kg/m^2), age, and the categorical and binary variable of the outcome (1-diabetes or 0-no diabetes). There are 768 observations of 8 variables in the dataset.</p>
+<p>####MANOVA testing</p>
+<pre class="r"><code>library(lmtest)
+library(sandwich)
+library(plotROC)
+library(tidyverse)
+library(MASS)
+library(glmnet)
+library(ggplot2)
+manova &lt;- manova(cbind(Glucose,BloodPressure,SkinThickness,Insulin,BMI,Age)~Pregnancies,data=diabetes)
+summary(manova)</code></pre>
+<pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
+## Pregnancies 1 0.29917 54.142 6 761 &lt; 2.2e-16 ***
+## Residuals 766
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>summary.aov(manova)</code></pre>
+<pre><code>## Response Glucose :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Pregnancies 1 13141 13140.6 13.057 0.0003219 ***
+## Residuals 766 770924 1006.4
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response BloodPressure :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Pregnancies 1 5736 5735.8 15.601 8.542e-05 ***
+## Residuals 766 281619 367.6
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response SkinThickness :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Pregnancies 1 1302 1301.91 5.1437 0.02361 *
+## Residuals 766 193879 253.11
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response Insulin :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Pregnancies 1 55083 55083 4.1645 0.04162 *
+## Residuals 766 10131582 13227
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response BMI :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Pregnancies 1 15 14.908 0.2396 0.6246
+## Residuals 766 47662 62.222
+##
+## Response Age :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Pregnancies 1 31432 31431.8 322.54 &lt; 2.2e-16 ***
+## Residuals 766 74647 97.4
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>CatPreg &lt;- cut(diabetes$Pregnancies, breaks = c(0,5,15), labels=c(&quot;low&quot;,&quot;high&quot;), right=FALSE)
+
+pairwise.t.test(diabetes$Glucose,CatPreg,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$Glucose and CatPreg 
+## 
+##      low   
+## high 0.0011
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$BloodPressure,CatPreg,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$BloodPressure and CatPreg 
+## 
+##      low    
+## high 1.2e-05
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$SkinThickness,CatPreg,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$SkinThickness and CatPreg 
+## 
+##      low  
+## high 0.018
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$Insulin,CatPreg,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$Insulin and CatPreg 
+## 
+##      low  
+## high 0.032
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$Age,CatPreg,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$Age and CatPreg 
+## 
+##      low   
+## high &lt;2e-16
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>#Type-1 error
+1-(0.95)^12</code></pre>
+<pre><code>## [1] 0.4596399</code></pre>
+<pre class="r"><code>#Bonferroni 1 MAN, 6 ANOVA, 5 pairwise = 12
+0.05/12</code></pre>
+<pre><code>## [1] 0.004166667</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$Glucose,CatPreg,p.adj=&quot;bonf&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$Glucose and CatPreg 
+## 
+##      low   
+## high 0.0011
+## 
+## P value adjustment method: bonferroni</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$BloodPressure,CatPreg,p.adj=&quot;bonf&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$BloodPressure and CatPreg 
+## 
+##      low    
+## high 1.2e-05
+## 
+## P value adjustment method: bonferroni</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$SkinThickness,CatPreg,p.adj=&quot;bonf&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$SkinThickness and CatPreg 
+## 
+##      low  
+## high 0.018
+## 
+## P value adjustment method: bonferroni</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$Insulin,CatPreg,p.adj=&quot;bonf&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$Insulin and CatPreg 
+## 
+##      low  
+## high 0.032
+## 
+## P value adjustment method: bonferroni</code></pre>
+<pre class="r"><code>pairwise.t.test(diabetes$Age,CatPreg,p.adj=&quot;bonf&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  diabetes$Age and CatPreg 
+## 
+##      low   
+## high &lt;2e-16
+## 
+## P value adjustment method: bonferroni</code></pre>
+<p>A MANOVA test was conducted to determine the effect of number of pregnancies on the person’s glucose concentration, blood pressure, skin thickness, insulin, BMI, and age. After running the test, it can be concluded that the variables are statistically significant from each other since the p value is less than 0.05. Since the results were significant, a univariate ANOVA was conducted. The results from the ANOVA showed significance from pregnancies for all the variables, except for BMI.</p>
+<p>Post-hoc t-tests were run for all the variables to determine which category of number of pregnancies (low=0-5, high=6-15) differed in each variable. Given the p-values, it is concluded that low and high number of pregnancies are significantly different with only the BMI variable, but are not significantly different from the other five variables.</p>
+<p>A total of 12 tests were performed (1 MANOVA, 6 ANOVA, 5 pairwise). The probability of a Type 1 error occuring was 0.4596399 or 45.96%. The Bonferroni adjusted significance level for 0.05 Type-1 error was 0.004166667. After adjusting for the significance level using the Bonferroni correction, the mean difference between low and high number of pregnancies remained the same for each of the variables as before the correction.</p>
+<p>In conclusion, the assumptions for the MANOVA test were most likely not met because it has more assumptions that must be met such as having no extreme outliers, homogeneity, multivariate normality, etc.</p>
+<ul>
+<li><strong>2. (10 pts)</strong> Perform some kind of randomization test on your data (that makes sense). The statistic can be anything you want (mean difference, correlation, F-statistic/ANOVA, chi-squared), etc. State null and alternative hypotheses, perform the test, and interpret the results (7). Create a plot visualizing the null distribution and the test statistic (3).</li>
+</ul>
+<p>Null: The mean age is the same (no difference) for patients with low and high number of pregnancies.
+Alternative: The mean age is different for patients with low and high number of pregnancies.</p>
+<pre class="r"><code>low&lt;-diabetes%&gt;%filter(CatPreg==&quot;low&quot;)
+high&lt;-diabetes%&gt;%filter(CatPreg==&quot;high&quot;)
+mean(high$Age)-mean(low$Age)</code></pre>
+<pre><code>## [1] 13.48608</code></pre>
+<pre class="r"><code>rand_dist&lt;-vector()
+for(i in 1:5000) {
+new&lt;-data.frame(Age=sample(diabetes$Age),condition=CatPreg)
+rand_dist[i]&lt;-mean(new[new$condition==&quot;high&quot;,]$Age)-
+ mean(new[new$condition==&quot;low&quot;,]$Age)}
+
+t.test(data=diabetes, Age~CatPreg)</code></pre>
+<pre><code>##
+## Welch Two Sample t-test
+##
+## data: Age by CatPreg
+## t = -17.575, df = 508.36, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not
+equal to 0
+## 95 percent confidence interval:
+## -14.99366 -11.97851
+## sample estimates:
+## mean in group low mean in group high
+## 28.38618 41.87226</code></pre>
+<pre class="r"><code>library(ggplot2)
+hist(rand_dist, breaks = c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100), data=rand_dist);abline(v=-13.48608,col=&quot;red&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" />
+The mean difference was calculated for the randomization test as 13.48608 years. The p-value was significant, therefore we can reject the null hypothesis. This indicates that the mean age is different for patients with low and high number of pregnancies.</p>
+<ul>
+<li><strong>3. (40 pts)</strong> Build a linear regression model predicting one of your response variables from at least 2 other variables, including their interaction. Mean-center any numeric variables involved in the interaction.</li>
+</ul>
+<pre class="r"><code>diabetes_c &lt;- diabetes
+diabetes$Glucose &lt;- diabetes_c$Glucose - mean(diabetes_c$Glucose, na.rm = T)
+fit1 &lt;-lm(BMI ~ Outcome * Glucose, data = diabetes)
+summary(fit1)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = BMI ~ Outcome * Glucose, data = diabetes)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -34.956 -4.841 -0.512 4.439 32.098
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 30.72720 0.36382 84.458 &lt; 2e-16 ***
+## Outcome 4.18187 0.65449 6.390 2.89e-10 ***
+## Glucose 0.03876 0.01285 3.015 0.00265 **
+## Outcome:Glucose -0.02729 0.01929 -1.415 0.15752
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 7.506 on 764 degrees of freedom
+## Multiple R-squared: 0.09716, Adjusted R-squared: 0.09362
+## F-statistic: 27.41 on 3 and 764 DF, p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>library(ggplot2)
+library(interactions)
+
+ggplot(diabetes, aes(x=Glucose, y=BMI, group=Outcome))+geom_point(aes(color=Outcome))+
+geom_smooth(method=&quot;lm&quot;,se=F,fullrange=T,aes(color=Outcome)) + ggtitle(&quot;Interaction between Glucose and Diabetics on BMI&quot;) + xlab(&quot;Glucose Concentration (mmol/L)&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>resid &lt;-fit1$residuals
+fitvalue &lt;- fit1$fitted.values
+
+ggplot(diabetes, aes(x=Glucose, y=BMI)) + ggtitle(&quot;Interaction between Glucose and BMI&quot;)+ xlab(&quot;Glucose Concentration (mmol/L)&quot;)+ geom_point() + geom_smooth(method = &quot;lm&quot;, se=F)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Homoskedasticity
+ggplot()+geom_point(aes(fitvalue,resid))+geom_hline(yintercept=0, color=&#39;red&#39;) </code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-3.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>bptest(fit1)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit1
+## BP = 1.0977, df = 3, p-value = 0.7776</code></pre>
+<pre class="r"><code>ggplot()+geom_histogram(aes(resid), bins=20)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-4.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot()+geom_qq(aes(sample=resid))+geom_qq_line()</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-5.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>shapiro.test(resid)</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  resid
+## W = 0.94468, p-value = 2.478e-16</code></pre>
+<pre class="r"><code>coeftest(fit1, vcov = vcovHC(fit1))</code></pre>
+<pre><code>##
+## t test of coefficients:
+##
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 30.727205 0.361177 85.0752 &lt; 2.2e-16 ***
+## Outcome 4.181875 0.655008 6.3845 2.984e-10 ***
+## Glucose 0.038756 0.012412 3.1225 0.001861 **
+## Outcome:Glucose -0.027291 0.018049 -1.5120 0.130942
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>summary(fit1)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = BMI ~ Outcome * Glucose, data = diabetes)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -34.956 -4.841 -0.512 4.439 32.098
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 30.72720 0.36382 84.458 &lt; 2e-16 ***
+## Outcome 4.18187 0.65449 6.390 2.89e-10 ***
+## Glucose 0.03876 0.01285 3.015 0.00265 **
+## Outcome:Glucose -0.02729 0.01929 -1.415 0.15752
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 7.506 on 764 degrees of freedom
+## Multiple R-squared: 0.09716, Adjusted R-squared: 0.09362
+## F-statistic: 27.41 on 3 and 764 DF, p-value: &lt; 2.2e-16</code></pre>
+<p>When there is no interaction between outcome of diabetes and glucose concentration, the intercept estimate of 30.72720 is the average BMI. The coefficient estimate of 4.18187 is the amount that the average BMI increases when the patient has diabetes. The coefficient estimate of 0.03876 is the amount that the average BMI increases with the increase in one mmol/L of glucose concentration. The coefficient estimate of -0.02729 is the amount that the average BMI decreases if the patient had diabetes and glucose concentration decreases.
+After plotting the data, it is clear that there is a relatively linear relationship between glucose concentration and BMI. The histogram data seemed quite off with a random break on the distribution, therefore there is no say that there is much of a normal distribution. According to the Breusch-Pagan Test, the p-value was not significant (0.7776), therefore we fail to reject the null hypothesis. On the other hand, the Shapiro-Wilk test shows a significant p-value (2.478e-16), meaning that the null hypothesis of normality was rejected. Although there were contrasting outcomes for the Breusch-Pagan Test and Shapiro-Wilk test, the linearity assumptions were relatively met, but the assumptions for homoskedasticity and the assumptions for normality were not met.
+The regression results was recomputed with robust standard errors. The coefficient estimates did not change, however the standard errors and t-values slightly changed. The proportion of variation from the R-squared value is 0.09716. The adjusted R-squared is slightly lower at 0.09362. The slight difference in R-squared values shows that the variation in BMI is explained by the model.</p>
+<ul>
+<li><strong>4. (5 pts)</strong> Rerun same regression model (with the interaction), but this time compute bootstrapped standard errors (either by resampling observations or residuals). Discuss any changes you observe in SEs and p-values using these SEs compared to the original SEs and the robust SEs)</li>
+</ul>
+<pre class="r"><code>samp_dist&lt;-replicate(5000, {
+boot_dat&lt;-diabetes_c[sample(nrow(diabetes_c),replace=TRUE),]
+fit2&lt;-lm(BMI ~ Outcome * Glucose, data=boot_dat)
+coef(fit2)
+})
+samp_dist%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)  Outcome    Glucose Outcome:Glucose
+## 1    1.430785 2.440469 0.01250297      0.01811265</code></pre>
+<pre class="r"><code>fit3&lt;-lm(BMI ~ Outcome * Glucose, data=diabetes_c)
+resids &lt;-fit3$residuals
+fitted &lt;- fit3$fitted.values
+resid_resamp&lt;-replicate(5000,{
+new_resids&lt;-sample(resids,replace=TRUE)
+diabetes_c$new_y&lt;-fitted+new_resids
+fit3&lt;-lm(new_y ~ Outcome * Glucose, data=diabetes_c)
+coef(fit3)
+})
+
+resid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)  Outcome    Glucose Outcome:Glucose
+## 1    1.428619 2.524828 0.01264281      0.01913047</code></pre>
+<p>After rerunning the same regression model with bootstrapped standard errors by resampling residuals, it was concluded that the new standard errors from bootstrapped model were slightly lower and higher than the standard errors from the original and robust standard errors. On the other hand, the new standard errors from the residual resampling had lower standard errors for all variables.</p>
+<ul>
+<li><strong>5. (30 pts)</strong> Fit a logistic regression model predicting a binary variable (if you don’t have one, make/get one) from at least two explanatory variables (interaction not necessary).</li>
+</ul>
+<pre class="r"><code>library(lmtest)
+diabetes_c &lt;-diabetes_c %&gt;%mutate(y=as.numeric(Outcome==&quot;1&quot;))
+
+fit4&lt;-glm(y ~ Age + Glucose,data=diabetes_c,family=binomial(link=&quot;logit&quot;))
+coeftest(fit4)</code></pre>
+<pre><code>##
+## z test of coefficients:
+##
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -5.9124491 0.4626197 -12.7804 &lt; 2.2e-16 ***
+## Age 0.0247784 0.0073737 3.3604 0.0007784 ***
+## Glucose 0.0356440 0.0032900 10.8341 &lt; 2.2e-16 ***
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(0.0247784)</code></pre>
+<pre><code>## [1] 1.025088</code></pre>
+<pre class="r"><code>exp(0.0356440)</code></pre>
+<pre><code>## [1] 1.036287</code></pre>
+<pre class="r"><code>diabetes_c$prob &lt;- predict(fit4, type = &quot;response&quot;)
+table(predict=as.numeric(diabetes_c$prob &gt; 0.5), truth=diabetes_c$y) %&gt;% addmargins</code></pre>
+<pre><code>##        truth
+## predict   0   1 Sum
+##     0   436 138 574
+##     1    64 130 194
+##     Sum 500 268 768</code></pre>
+<pre class="r"><code>(436+130)/768 #accuracy</code></pre>
+<pre><code>## [1] 0.7369792</code></pre>
+<pre class="r"><code>436/574 #sensitivity TPR</code></pre>
+<pre><code>## [1] 0.7595819</code></pre>
+<pre class="r"><code>130/194 #specificity FPR</code></pre>
+<pre><code>## [1] 0.6701031</code></pre>
+<pre class="r"><code>130/268 #precision</code></pre>
+<pre><code>## [1] 0.4850746</code></pre>
+<pre class="r"><code>diabetes$logit&lt;-predict(fit4) 
+diabetes$Outcome&lt;-as.factor(diabetes$Outcome)
+ggplot(diabetes, aes(logit, fill=Outcome)) + geom_density(alpha=.3) + geom_vline(xintercept=0,lty=2)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ROCplot &lt;- ggplot(diabetes_c) +geom_roc(aes(d=y, m=prob), n.cuts = 0) + geom_segment(aes(x=0, xend=1, y=0, yend=1))
+ROCplot</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.8007127</code></pre>
+<p>After running the logistic regression model, when controlling for glucose concentration, there is a significant difference of age on the outcome of having diabetes. Furthermore, when controlling for age, there is a significant difference of glucose concentration on the outcome of having diabetes. When there is no interaction between age and glucose concentration, the intercept estimate of -1.6032792 is the chance of having diabetes. Every one year increase in age multiplies the patients odds of having diabetes by 1.025088, and every one unit increase in glucose concentration multiplies the patients odds of having diabetes by 1.036287.
+For the confusion matrix, the accuracy of the model is 0.7369792, which indicates the number of patients that are predicted to have no diabetes that actually doesn’t have diabetes. The sensitivity of the model is 0.7595819. The specificity of the model is 0.6701031. The precision of the model is 0.4850746.
+After computing the ROC curve, the AUC for the model was calculated to be 0.8007127. Since this is a relatively good AUC, it could be concluded that age and glucose concentrations are good indicators of the outcome of having diabetes.</p>
+<ul>
+<li><strong>6. (25 pts)</strong> Perform a logistic regression predicting the same binary response variable from <em>ALL</em> of the rest of your variables (the more, the better!)</li>
+</ul>
+<pre class="r"><code>fit5 &lt;- glm(y ~ Pregnancies + Glucose + BloodPressure + SkinThickness + Insulin + BMI+ Age, data = diabetes_c, family = binomial(link = &quot;logit&quot;))
+coeftest(fit5)</code></pre>
+<pre><code>##
+## z test of coefficients:
+##
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -8.06844738 0.69606108 -11.5916 &lt; 2.2e-16
+***
+## Pregnancies 0.11772465 0.03169565 3.7142 0.0002038 ***
+## Glucose 0.03517125 0.00366356 9.6003 &lt; 2.2e-16 ***
+## BloodPressure -0.01363704 0.00520759 -2.6187 0.0088270
+**
+## SkinThickness 0.00248090 0.00681937 0.3638 0.7160061
+## Insulin -0.00097045 0.00088769 -1.0932 0.2742927
+## BMI 0.09126424 0.01505635 6.0615 1.348e-09 ***
+## Age 0.01628638 0.00927954 1.7551 0.0792448 .
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>diabetes_c$prob &lt;- predict(fit5, type =&quot;response&quot;)
+table(predict=as.numeric(diabetes_c$prob&gt;.5),truth=diabetes_c$y)%&gt;% addmargins()</code></pre>
+<pre><code>##        truth
+## predict   0   1 Sum
+##     0   439 112 551
+##     1    61 156 217
+##     Sum 500 268 768</code></pre>
+<pre class="r"><code>(439+156)/768 #accuracy</code></pre>
+<pre><code>## [1] 0.7747396</code></pre>
+<pre class="r"><code>156/268 #sensitivity</code></pre>
+<pre><code>## [1] 0.5820896</code></pre>
+<pre class="r"><code>439/500 #specificity</code></pre>
+<pre><code>## [1] 0.878</code></pre>
+<pre class="r"><code>156/217 #precision</code></pre>
+<pre><code>## [1] 0.718894</code></pre>
+<pre class="r"><code>class_diag&lt;-function(probs,truth){
+tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+acc=sum(diag(tab))/sum(tab)
+sens=tab[2,2]/colSums(tab)[2]
+spec=tab[1,1]/colSums(tab)[1]
+ppv=tab[2,2]/rowSums(tab)[2]
+if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE) truth&lt;-as.numeric(truth)-1
+ord&lt;-order(probs, decreasing=TRUE)
+probs &lt;- probs[ord]; truth &lt;- truth[ord]
+TPR=cumsum(truth)/max(1,sum(truth))
+FPR=cumsum(!truth)/max(1,sum(!truth))
+dup&lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+n &lt;- length(TPR)
+auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+data.frame(acc,sens,spec,ppv,auc)
+}
+
+
+#10-Fold CV
+set.seed(1234)
+k=10
+data1&lt;-diabetes_c[sample(nrow(diabetes_c)),]
+folds&lt;-cut(seq(1:nrow(diabetes_c)),breaks=k,labels=F)
+diags&lt;-NULL
+for(i in 1:k){
+train&lt;-data1[folds!=i,]
+test&lt;-data1[folds==i,]
+truth&lt;-test$y
+fit&lt;-glm(y ~ Age + Glucose,data=train,family=&quot;binomial&quot;)
+probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+apply(diags,2,mean)</code></pre>
+<pre><code>##       acc      sens      spec       ppv       auc 
+## 0.7370984 0.4872443 0.8750044 0.6819390 0.8022574</code></pre>
+<pre class="r"><code>library(glmnet)
+fit6 &lt;- diabetes%&gt;%dplyr::select(Pregnancies,Glucose,BloodPressure,Insulin,BMI,Age,Outcome, SkinThickness)
+y&lt;-as.matrix(fit6$Outcome)
+x&lt;-model.matrix(Outcome~(.),data=fit6)[,-1]
+cv&lt;-cv.glmnet(x,y,family=&quot;binomial&quot;)
+lasso&lt;-glmnet(x,y,family=&quot;binomial&quot;,lambda=cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 8 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                         s0
+## (Intercept)   -2.109450540
+## Pregnancies    0.048842362
+## Glucose        0.024087846
+## BloodPressure  .          
+## Insulin        .          
+## BMI            0.036323409
+## Age            0.001019859
+## SkinThickness  .</code></pre>
+<pre class="r"><code>diabetes_new &lt;- data.frame(diabetes_c$Pregnancies, diabetes_c$Glucose, diabetes_c$y)
+data_new &lt;- diabetes_new[sample(nrow(diabetes_new)), ]
+folds &lt;- cut(seq(1:nrow(diabetes_new)), breaks = k, labels = F)
+diags &lt;- NULL
+for (i in 1:k) {
+train &lt;- data_new[folds != i, ]
+test &lt;- data_new[folds == i, ]
+truth &lt;- test$diabetes_c.y
+fit &lt;- lm(diabetes_c.y ~ ., data = train, family = &quot;binomial&quot;)
+probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+
+apply(diags,2,mean)</code></pre>
+<pre><code>##       acc      sens      spec       ppv       auc 
+## 0.7526316 0.4932777 0.8905372 0.7073179 0.7993912</code></pre>
+<p>After computing a logisitic regression for all the variables in the dataset, the accuracy was 0.5562355 for patients who are actually diabetic. The sensitivity was 0.8553846 which indicates number of predicted non-diabetics. The specificity was 0.1926134 which includes both diabetic and non-diabetic patients. The precision was 0.5628955 which indicates patients who are actually non-diabetic.
+The same model was used for a 10-fold CV. The accuracy was 0.5534955, which was slightly lower than the in-sample metrics. The sensitivity was 0.8752451. The specificity was 0.1650197. The precision was 0.5602152. The AUC was 0.5479474. All of the values were lower than those from the in-sample metrics. The lower AUC indicates that the model is bad and isn’t a great predictor of outcome of having diabetes. Furthermore, it shows signs of overfitting.
+From the LASSO regression, it is apparent that number of pregnancies and BMI are the most important predictors for the model and the rest are noise. The accuracy was 0.7526316, which was slightly higher than the logistic regressions. The sensitivity was 0.4932777. The specificity was 0.8905372. The precision was 0.7073179. The AUC was 0.7993912 The slightly higher AUC indicates that the model is a good fit and that number of pregnancies and glucose concentration is a good predictor of outcome of diabetes.</p>
+<pre class="r"><code>data(package = .packages(all.available = TRUE))</code></pre>
+<p>…</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

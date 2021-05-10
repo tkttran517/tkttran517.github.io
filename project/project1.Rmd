@@ -1,0 +1,124 @@
+---
+title: "Project 1: Exploratory Data Analysis"
+author: "Tiffany Tran tkt474"
+date: '04/04/2021'
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+  pdf_document:
+    toc: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", 
+    warning = F, message = F, tidy = TRUE, tidy.opts = list(width.cutoff = 60), 
+    R.options = list(max.print = 100))
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+all_seasons <- read.csv("~/all_seasons.csv")
+all_seasons <- all_seasons %>% select(player_name, draft_year, player_height, player_weight, age, pts) %>% filter(draft_year == "2012")
+injuries <- read.csv("~/injuries_2010-2020.csv")
+head(all_seasons)
+head(injuries)
+```
+## Introduction
+The datasets `all_seasons` and `injuries_2010-2020` were acquired from https://www.kaggle.com/datasets. The `all_season` dataset includes demographic variables and box score statistics of every NBA player from 1996 to 2019. Some variables include the player and the team they were on, their age, height, weight, and draft year and round. The box score statistics includes number of games played, rebounds, assists, average number of points per game, etc. The `injuries_2010-2020` dataset includes all the injuries in the NBA from 2010 to 2020. The variables in the dataset include the date of the incident, player and their team name, and details about the injury. Growing up with an older brother who is heavily invested in basketball, I was definitely influenced by him and have also always been interested in basketball. After scrolling on Kaggle, I came across datasets about the NBA and thought it would be interesting to investigate if there is a correlation between a player's demographics/statistics to their injuries. Based on what I have witnessed, I think that guarders or players to are shorter and weigh less (i.e equal or less than 6 ft or less than 81kg) would have the highest chance of injury than those who are taller or play as centers or forwards. 
+
+
+
+## Tidying: Rearranging Wide/Long
+The datasets found were originally tidy, therefore no tidying was necessary. When calling the dataset, however the year was filtered to only 2012 to lower the observation numbers and relevant variables were selected from the dataset. 
+
+## Joining/Merging
+
+```{r}
+merging <-injuries%>%left_join(all_seasons,by=c("Relinquished"="player_name"))%>%na.omit
+```
+The left_join function was used to merge the two datasets together through their common categorical variable, the player name. The numerical variables were player height, weight and age. Left_join was chosen to keep all the data in the `injuries` dataset as well as to only include the demographics/statistics of each associated player in `injuries`. After merging, the new `merging` dataset includes 4915 observations with 10 variables. There were no cases that were dropped. 
+
+## Wrangling
+```{r}
+library(tidyverse)
+#mutate cm to
+merging %>% mutate(`player_heightfeet` = `player_height` * 0.0328084) %>% head()
+
+#group_by, summarize
+merging %>% group_by(Relinquished) %>% summarise(mean(min(merging$player_height), na.rm = T))%>% head()
+
+#select
+merging %>% select(Relinquished, `player_weight`, `player_height`, `age`, `pts`)%>% head()
+
+#filter, arrange
+merging %>% filter(Relinquished == "Damian Lillard") %>% arrange(player_weight) %>% head()
+
+```
+Summary Statistics:
+```{r}
+merging %>% group_by(Relinquished) %>% summarize_if(is.numeric, mean, na.rm = T) %>% head()
+
+merging %>% group_by(Relinquished) %>% summarize_if(is.numeric, var, na.rm = T)%>% head()
+
+merging %>% group_by(Relinquished) %>% summarize_if(is.numeric, sd, na.rm = T) %>% head()
+
+merging %>% group_by(Relinquished) %>% summarize_if(is.numeric, min, na.rm = T)%>% head()
+
+merging %>% group_by(Relinquished) %>% summarize_if(is.numeric, max, na.rm = T)%>% head()
+```
+First, the six core dplyr functions were used to manipulate and explore the dataset. I used mutate to convert the player height from centimeters to feet. I then used group_by and summarise to find the shortest player in 2012, and there were three at 6.1 feet which were Damian Lillard, Marquis Teague, and Darius Johnson-Odom. I used the select function to select for players, height, weight, and age. Lastly, since he was one of the shortest players in 2012, I filtered the players to Damian Lillard and arranged it to his weight to further analyze his statistics. Also, I added head() to save room when knitting. 
+Summary statistics for each of my variables were computed using summarize_if and group_by along with unique functions mean, variation, standard deviation, minimum, and maximum. The mean weight and age were approximately 196 and 24, respectively. Something interesting I found was that there was a correlation between age and number of points scored where if they were near the mean age, the scored more points. 
+
+## Visualizing
+```{r}
+visualmatrix <- merging %>% na.omit() %>% select_if(is.numeric) %>% cor()
+visualmatrix
+
+#tidy
+tidydata <- visualmatrix %>% as.data.frame %>% rownames_to_column("var1") %>% pivot_longer(-1, names_to = "var2", values_to ="correlation")
+tidydata %>% ggplot(aes(var1, var2, fill = correlation)) + geom_tile() + scale_fill_gradient2(low = "red", mid = "white", high = "blue") + geom_text(aes(label = round(correlation, 2)), color = "black", size = 4) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_fixed()
+
+```
+A correlation heat map of the matrix of the numeric variables, player height and weight and age, was generated. In this heat map, the darker the box, the higher the correlation, and vice versa. Player height and weight with age had little to no correlation. On the otherhand, player weight with player height had relatively high correlation.
+```{r}
+ggplot(merging, aes(`player_height`, `player_weight`, 
+    color = age), stat = "summary") + geom_point(size = 1.5) + 
+    scale_y_continuous("player_weight (kg)", breaks = c(80, 85, 90, 95, 100, 105, 110, 115, 120, 125)) + scale_color_gradient(low = "blue", 
+    high = "red") + labs(color = "Age") + ggtitle("Injuries with Player Height VS Weight with Age") + 
+    scale_x_continuous("player_height (cm)")
+```
+A ggplot using stat = "summary" with additional tick marks was generated to visualize the plot of the players' height, weight, and age. The x-axis represents the players' height in centimeters, and the y-axis represents the players' weight in kilograms. There is great variation in the data, however there is a visible upward,increasing trend with height and weight. 
+```{r}
+merging%>%
+  ggplot(aes(x=player_height,y=pts))+ xlab("Player Height (cm)")+ ylab("Number of Points")+
+  geom_bar(stat="summary",fun.y="mean")+
+  geom_errorbar(stat="summary") + ggtitle("Player Height VS Number of Points Scored")
+```
+Lastly, I generated a bar plot to further analyze the correlation between injuries with height. However, instead of using injuries as a variable, I decided to determine the correlation between the number of points that a player scores with their height. Error bars were included to indicate uncertainty in the data. According to my data, shorter players tend to score more points, which is quite accurate considering if you are short in the NBA, this would mean you are able to shoot and score more. This would then allow me to conclude that there is a possible correlation between players who score more and rates of injuries. 
+
+##Dimensionality Reduction
+```{r}
+drdata <- merging %>% select_if(is.numeric) %>% na.omit %>% scale
+
+drdata<-merging%>%select(player_height,player_weight,age)%>%scale 
+drdata_pca<-princomp(drdata)
+summary(drdata_pca, loadings=T)
+```
+```{r}
+eigenval <- drdata_pca$sdev^2
+varprop = round(eigenval/sum(eigenval),2)
+
+ggplot() + geom_bar(aes(y = varprop, x = 1:3), stat = "identity") + xlab("") + geom_path(aes(y = varprop, x = 1:3)) + geom_text(aes(x = 1:3, y = varprop, label = round(varprop, 2)), vjust = 1, col = "white", size = 5) + scale_y_continuous(breaks = seq(0, 0.6, 0.2), labels = scales::percent) + scale_x_continuous(breaks = 1:3)
+```
+```{r}
+dataframe <- data.frame(PC1 = drdata_pca$scores[, 1], PC2 = drdata_pca$scores[, 2])
+ggplot(dataframe, aes(PC1, PC2)) + geom_point()
+```
+A principle component analysis was conducted for dimensionality reduction for variables height, weight, and age. This was done through normalizing the data, princomp, calculating eigen, and also plotting the data through ggplot. The cumulative proportion of variance for Comp 1 and Comp 2 values were greater than 80%, which is why they were used. After analyzing the data and graph, Comp 1 shows more variation than Comp 2. Furthermore, in Comp 1, injured players are those who are are tall, heavier and are younger. This conclusion disproved my hypothesis in that injured players would be those who were shorter and heavier. 

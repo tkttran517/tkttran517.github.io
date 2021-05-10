@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Tiffany Tran" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<pre class="r"><code>library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+all_seasons &lt;- read.csv(&quot;~/all_seasons.csv&quot;)
+all_seasons &lt;- all_seasons %&gt;% select(player_name, draft_year, 
+    player_height, player_weight, age, pts) %&gt;% filter(draft_year == 
+    &quot;2012&quot;)
+injuries &lt;- read.csv(&quot;~/injuries_2010-2020.csv&quot;)
+head(all_seasons)</code></pre>
+<pre><code>##        player_name draft_year player_height player_weight age pts
+## 1  Orlando Johnson       2012        195.58      99.79024  24 4.0
+## 2     Tyler Zeller       2012        213.36     113.39800  23 7.9
+## 3   Tyshawn Taylor       2012        190.50      83.91452  23 2.2
+## 4      Will Barton       2012        195.58      77.11064  22 4.0
+## 5   Marquis Teague       2012        187.96      86.18248  20 2.1
+## 6 Maurice Harkless       2012        203.20      95.25432  20 8.2</code></pre>
+<pre class="r"><code>head(injuries)</code></pre>
+<pre><code>##         Date    Team Acquired  Relinquished
+## 1 2010-10-03   Bulls          Carlos Boozer
+## 2 2010-10-06 Pistons          Jonas Jerebko
+## 3 2010-10-06 Pistons          Terrico White
+## 4 2010-10-08 Blazers             Jeff Ayres
+## 5 2010-10-08    Nets            Troy Murphy
+## 6 2010-10-08 Pistons          Jonas Jerebko
+##                                                      Notes
+## 1  fractured bone in right pinky finger (out indefinitely)
+## 2            torn right Achilles tendon (out indefinitely)
+## 3 broken fifth metatarsal in right foot (out indefinitely)
+## 4                torn ACL in right knee (out indefinitely)
+## 5                   strained lower back (out indefinitely)
+## 6             surgery to repair torn right Achilles tendon</code></pre>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The datasets <code>all_seasons</code> and <code>injuries_2010-2020</code> were acquired from <a href="https://www.kaggle.com/datasets" class="uri">https://www.kaggle.com/datasets</a>. The <code>all_season</code> dataset includes demographic variables and box score statistics of every NBA player from 1996 to 2019. Some variables include the player and the team they were on, their age, height, weight, and draft year and round. The box score statistics includes number of games played, rebounds, assists, average number of points per game, etc. The <code>injuries_2010-2020</code> dataset includes all the injuries in the NBA from 2010 to 2020. The variables in the dataset include the date of the incident, player and their team name, and details about the injury. Growing up with an older brother who is heavily invested in basketball, I was definitely influenced by him and have also always been interested in basketball. After scrolling on Kaggle, I came across datasets about the NBA and thought it would be interesting to investigate if there is a correlation between a player’s demographics/statistics to their injuries. Based on what I have witnessed, I think that guarders or players to are shorter and weigh less (i.e equal or less than 6 ft or less than 81kg) would have the highest chance of injury than those who are taller or play as centers or forwards.</p>
+</div>
+<div id="tidying-rearranging-widelong" class="section level2">
+<h2>Tidying: Rearranging Wide/Long</h2>
+<p>The datasets found were originally tidy, therefore no tidying was necessary. When calling the dataset, however the year was filtered to only 2012 to lower the observation numbers and relevant variables were selected from the dataset.</p>
+</div>
+<div id="joiningmerging" class="section level2">
+<h2>Joining/Merging</h2>
+<pre class="r"><code>merging &lt;- injuries %&gt;% left_join(all_seasons, by = c(Relinquished = &quot;player_name&quot;)) %&gt;% 
+    na.omit</code></pre>
+<p>The left_join function was used to merge the two datasets together through their common categorical variable, the player name. The numerical variables were player height, weight and age. Left_join was chosen to keep all the data in the <code>injuries</code> dataset as well as to only include the demographics/statistics of each associated player in <code>injuries</code>. After merging, the new <code>merging</code> dataset includes 4915 observations with 10 variables. There were no cases that were dropped.</p>
+</div>
+<div id="wrangling" class="section level2">
+<h2>Wrangling</h2>
+<pre class="r"><code>library(tidyverse)
+# mutate cm to
+merging %&gt;% mutate(player_heightfeet = player_height * 0.0328084) %&gt;% 
+    head()</code></pre>
+<pre><code>##         Date    Team Acquired  Relinquished
+## 1 2012-07-27 Hornets          Austin Rivers
+## 2 2012-07-27 Hornets          Austin Rivers
+## 3 2012-07-27 Hornets          Austin Rivers
+## 4 2012-07-27 Hornets          Austin Rivers
+## 5 2012-07-27 Hornets          Austin Rivers
+## 6 2012-07-27 Hornets          Austin Rivers
+##                                                            Notes draft_year
+## 1 surgery on right ankle to remove bone spurs (out indefinitely)       2012
+## 2 surgery on right ankle to remove bone spurs (out indefinitely)       2012
+## 3 surgery on right ankle to remove bone spurs (out indefinitely)       2012
+## 4 surgery on right ankle to remove bone spurs (out indefinitely)       2012
+## 5 surgery on right ankle to remove bone spurs (out indefinitely)       2012
+## 6 surgery on right ankle to remove bone spurs (out indefinitely)       2012
+##   player_height player_weight age  pts player_heightfeet
+## 1        193.04       90.7184  20  6.2          6.333334
+## 2        193.04       90.7184  21  7.7          6.333334
+## 3        193.04       90.7184  22  7.0          6.333334
+## 4        193.04       90.7184  23  8.9          6.333334
+## 5        193.04       90.7184  24 12.0          6.333334
+## 6        193.04       90.7184  25 15.1          6.333334</code></pre>
+<pre class="r"><code># group_by, summarize
+merging %&gt;% group_by(Relinquished) %&gt;% summarise(mean(min(merging$player_height), 
+    na.rm = T)) %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Relinquished     `mean(min(merging$player_height), na.rm = T)`
+##   &lt;fct&gt;                                                    &lt;dbl&gt;
+## 1 Andre Drummond                                            188.
+## 2 Andrew Nicholson                                          188.
+## 3 Anthony Davis                                             188.
+## 4 Arnett Moultrie                                           188.
+## 5 Austin Rivers                                             188.
+## 6 Bernard James                                             188.</code></pre>
+<pre class="r"><code># select
+merging %&gt;% select(Relinquished, player_weight, player_height, 
+    age, pts) %&gt;% head()</code></pre>
+<pre><code>##       Relinquished player_weight player_height age  pts
+## 5023 Austin Rivers       90.7184        193.04  20  6.2
+## 5024 Austin Rivers       90.7184        193.04  21  7.7
+## 5025 Austin Rivers       90.7184        193.04  22  7.0
+## 5026 Austin Rivers       90.7184        193.04  23  8.9
+## 5027 Austin Rivers       90.7184        193.04  24 12.0
+## 5028 Austin Rivers       90.7184        193.04  25 15.1</code></pre>
+<pre class="r"><code># filter, arrange
+merging %&gt;% filter(Relinquished == &quot;Damian Lillard&quot;) %&gt;% arrange(player_weight) %&gt;% 
+    head()</code></pre>
+<pre><code>##         Date    Team Acquired   Relinquished
+## 1 2015-12-21 Blazers          Damian Lillard
+## 2 2015-12-21 Blazers          Damian Lillard
+## 3 2015-12-21 Blazers          Damian Lillard
+## 4 2015-12-21 Blazers          Damian Lillard
+## 5 2015-12-21 Blazers          Damian Lillard
+## 6 2015-12-21 Blazers          Damian Lillard
+##                                        Notes draft_year player_height
+## 1 placed on IL with sore left plantar fascia       2012         190.5
+## 2 placed on IL with sore left plantar fascia       2012         190.5
+## 3 placed on IL with sore left plantar fascia       2012         190.5
+## 4 placed on IL with sore left plantar fascia       2012         190.5
+## 5 placed on IL with sore left plantar fascia       2012         190.5
+## 6 placed on IL with sore left plantar fascia       2012         190.5
+##   player_weight age  pts
+## 1      88.45044  22 19.0
+## 2      88.45044  23 20.7
+## 3      88.45044  24 21.0
+## 4      88.45044  25 25.1
+## 5      88.45044  26 27.0
+## 6      88.45044  27 26.9</code></pre>
+<p>Summary Statistics:</p>
+<pre class="r"><code>merging %&gt;% group_by(Relinquished) %&gt;% summarize_if(is.numeric, 
+    mean, na.rm = T) %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   Relinquished     player_height player_weight   age   pts
+##   &lt;fct&gt;                    &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Andre Drummond            210.         126.   22.5 14.4 
+## 2 Andrew Nicholson          206.         113.   25    5.58
+## 3 Anthony Davis             209.         109.   23.4 24.0 
+## 4 Arnett Moultrie           208.         110.   22.5  3.35
+## 5 Austin Rivers             193.          90.7  23.5  9.19
+## 6 Bernard James             208.         108.   29    2.17</code></pre>
+<pre class="r"><code>merging %&gt;% group_by(Relinquished) %&gt;% summarize_if(is.numeric, 
+    var, na.rm = T) %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   Relinquished     player_height player_weight   age    pts
+##   &lt;fct&gt;                    &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+## 1 Andre Drummond           1.53           3.16 5.31   8.29 
+## 2 Andrew Nicholson         0              0    2.05   3.29 
+## 3 Anthony Davis            0.707         52.6  4.49  20.5  
+## 4 Arnett Moultrie          0              1.54 0.3    0.147
+## 5 Austin Rivers            0.709          0    5.27   7.60 
+## 6 Bernard James            0              1.25 0.727  0.875</code></pre>
+<pre class="r"><code>merging %&gt;% group_by(Relinquished) %&gt;% summarize_if(is.numeric, 
+    sd, na.rm = T) %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   Relinquished     player_height player_weight   age   pts
+##   &lt;fct&gt;                    &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Andre Drummond           1.24           1.78 2.30  2.88 
+## 2 Andrew Nicholson         0              0    1.43  1.81 
+## 3 Anthony Davis            0.841          7.25 2.12  4.53 
+## 4 Arnett Moultrie          0              1.24 0.548 0.383
+## 5 Austin Rivers            0.842          0    2.30  2.76 
+## 6 Bernard James            0              1.12 0.853 0.935</code></pre>
+<pre class="r"><code>merging %&gt;% group_by(Relinquished) %&gt;% summarize_if(is.numeric, 
+    min, na.rm = T) %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   Relinquished     player_height player_weight   age   pts
+##   &lt;fct&gt;                    &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Andre Drummond            208.         122.     19   7.9
+## 2 Andrew Nicholson          206.         113.     23   2.6
+## 3 Anthony Davis             208.          99.8    20  13.5
+## 4 Arnett Moultrie           208.         109.     22   3  
+## 5 Austin Rivers             190.          90.7    20   6.2
+## 6 Bernard James             208.         107.     28   0.9</code></pre>
+<pre class="r"><code>merging %&gt;% group_by(Relinquished) %&gt;% summarize_if(is.numeric, 
+    max, na.rm = T) %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   Relinquished     player_height player_weight   age   pts
+##   &lt;fct&gt;                    &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Andre Drummond            211.         127.     26  17.5
+## 2 Andrew Nicholson          206.         113.     27   7.8
+## 3 Anthony Davis             211.         115.     26  28.1
+## 4 Arnett Moultrie           208.         111.     23   3.7
+## 5 Austin Rivers             193.          90.7    27  15.1
+## 6 Bernard James             208.         109.     30   2.8</code></pre>
+<p>First, the six core dplyr functions were used to manipulate and explore the dataset. I used mutate to convert the player height from centimeters to feet. I then used group_by and summarise to find the shortest player in 2012, and there were three at 6.1 feet which were Damian Lillard, Marquis Teague, and Darius Johnson-Odom. I used the select function to select for players, height, weight, and age. Lastly, since he was one of the shortest players in 2012, I filtered the players to Damian Lillard and arranged it to his weight to further analyze his statistics. Also, I added head() to save room when knitting.
+Summary statistics for each of my variables were computed using summarize_if and group_by along with unique functions mean, variation, standard deviation, minimum, and maximum. The mean weight and age were approximately 196 and 24, respectively. Something interesting I found was that there was a correlation between age and number of points scored where if they were near the mean age, the scored more points.</p>
+</div>
+<div id="visualizing" class="section level2">
+<h2>Visualizing</h2>
+<pre class="r"><code>visualmatrix &lt;- merging %&gt;% na.omit() %&gt;% select_if(is.numeric) %&gt;% 
+    cor()
+visualmatrix</code></pre>
+<pre><code>##               player_height player_weight         age          pts
+## player_height    1.00000000   0.730433302 0.047910734 -0.056731883
+## player_weight    0.73043330   1.000000000 0.117584523 -0.003474433
+## age              0.04791073   0.117584523 1.000000000  0.003571202
+## pts             -0.05673188  -0.003474433 0.003571202  1.000000000</code></pre>
+<pre class="r"><code># tidy
+tidydata &lt;- visualmatrix %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% 
+    pivot_longer(-1, names_to = &quot;var2&quot;, values_to = &quot;correlation&quot;)
+tidydata %&gt;% ggplot(aes(var1, var2, fill = correlation)) + geom_tile() + 
+    scale_fill_gradient2(low = &quot;red&quot;, mid = &quot;white&quot;, high = &quot;blue&quot;) + 
+    geom_text(aes(label = round(correlation, 2)), color = &quot;black&quot;, 
+        size = 4) + theme(axis.text.x = element_text(angle = 90, 
+    hjust = 1)) + coord_fixed()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" />
+A correlation heat map of the matrix of the numeric variables, player height and weight and age, was generated. In this heat map, the darker the box, the higher the correlation, and vice versa. Player height and weight with age had little to no correlation. On the otherhand, player weight with player height had relatively high correlation.</p>
+<pre class="r"><code>ggplot(merging, aes(player_height, player_weight, color = age), 
+    stat = &quot;summary&quot;) + geom_point(size = 1.5) + scale_y_continuous(&quot;player_weight (kg)&quot;, 
+    breaks = c(80, 85, 90, 95, 100, 105, 110, 115, 120, 125)) + 
+    scale_color_gradient(low = &quot;blue&quot;, high = &quot;red&quot;) + labs(color = &quot;Age&quot;) + 
+    ggtitle(&quot;Injuries with Player Height VS Weight with Age&quot;) + 
+    scale_x_continuous(&quot;player_height (cm)&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" />
+A ggplot using stat = “summary” with additional tick marks was generated to visualize the plot of the players’ height, weight, and age. The x-axis represents the players’ height in centimeters, and the y-axis represents the players’ weight in kilograms. There is great variation in the data, however there is a visible upward,increasing trend with height and weight.</p>
+<pre class="r"><code>merging %&gt;% ggplot(aes(x = player_height, y = pts)) + xlab(&quot;Player Height (cm)&quot;) + 
+    ylab(&quot;Number of Points&quot;) + geom_bar(stat = &quot;summary&quot;, fun.y = &quot;mean&quot;) + 
+    geom_errorbar(stat = &quot;summary&quot;) + ggtitle(&quot;Player Height VS Number of Points Scored&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" />
+Lastly, I generated a bar plot to further analyze the correlation between injuries with height. However, instead of using injuries as a variable, I decided to determine the correlation between the number of points that a player scores with their height. Error bars were included to indicate uncertainty in the data. According to my data, shorter players tend to score more points, which is quite accurate considering if you are short in the NBA, this would mean you are able to shoot and score more. This would then allow me to conclude that there is a possible correlation between players who score more and rates of injuries.</p>
+<p>##Dimensionality Reduction</p>
+<pre class="r"><code>drdata &lt;- merging %&gt;% select_if(is.numeric) %&gt;% na.omit %&gt;% scale
+
+drdata &lt;- merging %&gt;% select(player_height, player_weight, age) %&gt;% 
+    scale
+drdata_pca &lt;- princomp(drdata)
+summary(drdata_pca, loadings = T)</code></pre>
+<pre><code>## Importance of components:
+##                           Comp.1    Comp.2     Comp.3
+## Standard deviation     1.3222734 0.9923813 0.51590892
+## Proportion of Variance 0.5829209 0.3283404 0.08873873
+## Cumulative Proportion  0.5829209 0.9112613 1.00000000
+## 
+## Loadings:
+##               Comp.1 Comp.2 Comp.3
+## player_height  0.695  0.157  0.702
+## player_weight  0.702        -0.709
+## age            0.155 -0.986</code></pre>
+<pre class="r"><code>eigenval &lt;- drdata_pca$sdev^2
+varprop = round(eigenval/sum(eigenval), 2)
+
+ggplot() + geom_bar(aes(y = varprop, x = 1:3), stat = &quot;identity&quot;) + 
+    xlab(&quot;&quot;) + geom_path(aes(y = varprop, x = 1:3)) + geom_text(aes(x = 1:3, 
+    y = varprop, label = round(varprop, 2)), vjust = 1, col = &quot;white&quot;, 
+    size = 5) + scale_y_continuous(breaks = seq(0, 0.6, 0.2), 
+    labels = scales::percent) + scale_x_continuous(breaks = 1:3)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dataframe &lt;- data.frame(PC1 = drdata_pca$scores[, 1], PC2 = drdata_pca$scores[, 
+    2])
+ggplot(dataframe, aes(PC1, PC2)) + geom_point()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" />
+A principle component analysis was conducted for dimensionality reduction for variables height, weight, and age. This was done through normalizing the data, princomp, calculating eigen, and also plotting the data through ggplot. The cumulative proportion of variance for Comp 1 and Comp 2 values were greater than 80%, which is why they were used. After analyzing the data and graph, Comp 1 shows more variation than Comp 2. Furthermore, in Comp 1, injured players are those who are are tall, heavier and are younger. This conclusion disproved my hypothesis in that injured players would be those who were shorter and heavier.</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
