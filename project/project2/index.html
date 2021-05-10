@@ -78,7 +78,7 @@
 <ul>
 <li><strong>0. (5 pts)</strong> Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?</li>
 </ul>
-<pre class="r"><code>diabetes &lt;- read.csv(&quot;~/diabetes.csv&quot;)
+<pre class="r"><code>diabetes &lt;- read.csv(&quot;diabetes.csv&quot;)
 diabetes &lt;- diabetes %&gt;% select(Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, Age, Outcome)
 
 
@@ -402,7 +402,7 @@ coef(fit2)
 })
 samp_dist%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
 <pre><code>##   (Intercept)  Outcome    Glucose Outcome:Glucose
-## 1    1.430785 2.440469 0.01250297      0.01811265</code></pre>
+## 1    1.444635 2.428706 0.01253448      0.01820108</code></pre>
 <pre class="r"><code>fit3&lt;-lm(BMI ~ Outcome * Glucose, data=diabetes_c)
 resids &lt;-fit3$residuals
 fitted &lt;- fit3$fitted.values
@@ -415,7 +415,7 @@ coef(fit3)
 
 resid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
 <pre><code>##   (Intercept)  Outcome    Glucose Outcome:Glucose
-## 1    1.428619 2.524828 0.01264281      0.01913047</code></pre>
+## 1    1.448337 2.560844 0.01282223      0.01930018</code></pre>
 <p>After rerunning the same regression model with bootstrapped standard errors by resampling residuals, it was concluded that the new standard errors from bootstrapped model were slightly lower and higher than the standard errors from the original and robust standard errors. On the other hand, the new standard errors from the residual resampling had lower standard errors for all variables.</p>
 <ul>
 <li><strong>5. (30 pts)</strong> Fit a logistic regression model predicting a binary variable (if you don’t have one, make/get one) from at least two explanatory variables (interaction not necessary).</li>

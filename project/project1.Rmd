@@ -24,9 +24,9 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-all_seasons <- read.csv("~/all_seasons.csv")
+all_seasons <- read.csv("all_seasons.csv")
 all_seasons <- all_seasons %>% select(player_name, draft_year, player_height, player_weight, age, pts) %>% filter(draft_year == "2012")
-injuries <- read.csv("~/injuries_2010-2020.csv")
+injuries <- read.csv("injuries_2010-2020.csv")
 head(all_seasons)
 head(injuries)
 ```

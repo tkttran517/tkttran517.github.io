@@ -1,30 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Chris Turner</title>
+    <title>Tiffany Tran</title>
     <link>/</link>
-    <description>Recent content on Chris Turner</description>
+    <description>Recent content on Tiffany Tran</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-US</language>
-    <lastBuildDate>Thu, 23 Jul 2015 21:13:14 -0500</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Hello R Markdown</title>
-      <link>/post/2015/07/23/hello-r-markdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
-      
-      <guid>/post/2015/07/23/hello-r-markdown/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
-    </item>
-    
+    <language>en-US</language><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Project 1: Exploratory Data Analysis</title>
       <link>/project/project1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/project/project1/</guid>
-      <description>library(dplyr) library(tidyr) library(ggplot2) all_seasons &amp;lt;- read.csv(&amp;quot;~/all_seasons.csv&amp;quot;) all_seasons &amp;lt;- all_seasons %&amp;gt;% select(player_name, draft_year, player_height, player_weight, age, pts) %&amp;gt;% filter(draft_year == &amp;quot;2012&amp;quot;) injuries &amp;lt;- read.csv(&amp;quot;~/injuries_2010-2020.csv&amp;quot;) head(all_seasons) ## player_name draft_year player_height player_weight age pts ## 1 Orlando Johnson 2012 195.58 99.79024 24 4.0 ## 2 Tyler Zeller 2012 213.36 113.39800 23 7.9 ## 3 Tyshawn Taylor 2012 190.50 83.91452 23 2.2 ## 4 Will Barton 2012 195.58 77.11064 22 4.0 ## 5 Marquis Teague 2012 187.</description>
+      <description>library(dplyr) library(tidyr) library(ggplot2) all_seasons &amp;lt;- read.csv(&amp;quot;all_seasons.csv&amp;quot;) all_seasons &amp;lt;- all_seasons %&amp;gt;% select(player_name, draft_year, player_height, player_weight, age, pts) %&amp;gt;% filter(draft_year == &amp;quot;2012&amp;quot;) injuries &amp;lt;- read.csv(&amp;quot;injuries_2010-2020.csv&amp;quot;) head(all_seasons) ## player_name draft_year player_height player_weight age pts ## 1 Orlando Johnson 2012 195.58 99.79024 24 4.0 ## 2 Tyler Zeller 2012 213.36 113.39800 23 7.9 ## 3 Tyshawn Taylor 2012 190.50 83.91452 23 2.2 ## 4 Will Barton 2012 195.58 77.11064 22 4.0 ## 5 Marquis Teague 2012 187.</description>
     </item>
     
     <item>
@@ -34,7 +22,7 @@ summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 2
       
       <guid>/project/project2/</guid>
       <description>Modeling ####Introduction
- 0. (5 pts) Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?  diabetes &amp;lt;- read.csv(&amp;quot;~/diabetes.csv&amp;quot;) diabetes &amp;lt;- diabetes %&amp;gt;% select(Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, Age, Outcome) head(diabetes) ## Pregnancies Glucose BloodPressure SkinThickness Insulin BMI Age Outcome ## 1 6 148 72 35 0 33.6 50 1 ## 2 1 85 66 29 0 26.</description>
+ 0. (5 pts) Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?  diabetes &amp;lt;- read.csv(&amp;quot;diabetes.csv&amp;quot;) diabetes &amp;lt;- diabetes %&amp;gt;% select(Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, Age, Outcome) head(diabetes) ## Pregnancies Glucose BloodPressure SkinThickness Insulin BMI Age Outcome ## 1 6 148 72 35 0 33.6 50 1 ## 2 1 85 66 29 0 26.</description>
     </item>
     
     <item>

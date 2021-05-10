@@ -76,11 +76,11 @@
 library(tidyr)
 library(ggplot2)
 
-all_seasons &lt;- read.csv(&quot;~/all_seasons.csv&quot;)
+all_seasons &lt;- read.csv(&quot;all_seasons.csv&quot;)
 all_seasons &lt;- all_seasons %&gt;% select(player_name, draft_year, 
     player_height, player_weight, age, pts) %&gt;% filter(draft_year == 
     &quot;2012&quot;)
-injuries &lt;- read.csv(&quot;~/injuries_2010-2020.csv&quot;)
+injuries &lt;- read.csv(&quot;injuries_2010-2020.csv&quot;)
 head(all_seasons)</code></pre>
 <pre><code>##        player_name draft_year player_height player_weight age pts
 ## 1  Orlando Johnson       2012        195.58      99.79024  24 4.0

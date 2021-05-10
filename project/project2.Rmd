@@ -35,7 +35,7 @@ library(tidyverse)
 
 - **0. (5 pts)** Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?
 ```{R}
-diabetes <- read.csv("~/diabetes.csv")
+diabetes <- read.csv("diabetes.csv")
 diabetes <- diabetes %>% select(Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, Age, Outcome)
 
 
